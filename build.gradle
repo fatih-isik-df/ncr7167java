@@ -1,0 +1,75 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+group = 'com.ncr'
+version = '1.0-SNAPSHOT'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // JSerialComm for serial communication
+    implementation 'com.fazecast:jSerialComm:2.9.3'
+    
+    // Logging
+    implementation 'org.slf4j:slf4j-api:1.7.36'
+    implementation 'ch.qos.logback:logback-classic:1.2.12'
+    
+    // Testing
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.2'
+    testImplementation 'org.mockito:mockito-core:4.11.0'
+}
+
+application {
+    mainClass = 'com.ncr.printer.examples.PrinterExample'
+}
+
+// Alternative main classes for different examples
+task runSimpleExample(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.ncr.printer.examples.SimpleExample'
+}
+
+task runPrinterExample(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.ncr.printer.examples.PrinterExample'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+// Jar task configuration
+jar {
+    manifest {
+        attributes(
+            'Main-Class': 'com.ncr.printer.examples.PrinterExample',
+            'Implementation-Title': 'NCR 7167 Printer Java Library',
+            'Implementation-Version': version
+        )
+    }
+    
+    // Include dependencies in jar (fat jar)
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+// Compilation options
+compileJava {
+    options.encoding = 'UTF-8'
+}
+
+compileTestJava {
+    options.encoding = 'UTF-8'
+}
